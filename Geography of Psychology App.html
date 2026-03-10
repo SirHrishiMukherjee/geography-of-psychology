@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Geography of Psychology</title>
+  <style>
+    :root {
+      --bg: #071018;
+      --panel: rgba(9, 18, 28, 0.82);
+      --panel-strong: rgba(6, 13, 21, 0.94);
+      --border: rgba(196, 220, 255, 0.14);
+      --text: #e8f1ff;
+      --muted: #9fb2ca;
+      --accent: #e0b95b;
+      --accent-soft: rgba(224, 185, 91, 0.18);
+      --oi: #e76f51;
+      --fh: #f4d35e;
+      --ju: #5ec8ff;
+      --danger: #ff5e5e;
+      --ok: #57d38c;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(94, 200, 255, 0.1), transparent 30%),
+        radial-gradient(circle at 80% 15%, rgba(231, 111, 81, 0.08), transparent 25%),
+        linear-gradient(180deg, #08131d 0%, #050b11 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      grid-template-rows: 100vh;
+      gap: 0;
+    }
+
+    .sidebar {
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(7, 16, 24, 0.96), rgba(5, 11, 17, 0.98));
+      border-right: 1px solid var(--border);
+      padding: 24px 20px 20px;
+      overflow-y: auto;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
+    }
+
+    .sidebar h1 {
+      font-size: 1.55rem;
+      line-height: 1.1;
+      margin: 0 0 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel h2 {
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin: 0 0 12px;
+    }
+
+    .lens-grid, .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    button, input[type="range"] {
+      width: 100%;
+    }
+
+    .lens-btn, .toggle-btn, .action-btn {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .lens-btn:hover, .toggle-btn:hover, .action-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .lens-btn.active[data-lens="OI"] { background: rgba(231,111,81,0.16); border-color: rgba(231,111,81,0.55); color: #ffd8cf; }
+    .lens-btn.active[data-lens="FH"] { background: rgba(244,211,94,0.16); border-color: rgba(244,211,94,0.55); color: #fff1bd; }
+    .lens-btn.active[data-lens="JU"] { background: rgba(94,200,255,0.16); border-color: rgba(94,200,255,0.55); color: #d9f5ff; }
+    .toggle-btn.active { background: rgba(224,185,91,0.14); border-color: rgba(224,185,91,0.5); }
+
+    .slider-row { margin-bottom: 12px; }
+    .slider-row:last-child { margin-bottom: 0; }
+
+    .slider-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+    }
+
+    .slider-top span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    input[type="range"] {
+      appearance: none;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(224,185,91,0.28));
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(224,185,91,0.15);
+      cursor: pointer;
+      border: 0;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .facts {
+      display: grid;
+      gap: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .facts strong { color: var(--text); font-weight: 700; }
+
+    .tests {
+      display: grid;
+      gap: 6px;
+      font-size: 0.84rem;
+      line-height: 1.35;
+    }
+
+    .test-pass { color: var(--ok); }
+    .test-fail { color: var(--danger); }
+
+    .main {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud {
+      position: absolute;
+      inset: 20px 20px auto auto;
+      width: 310px;
+      background: var(--panel-strong);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      z-index: 5;
+    }
+
+    .hud h3 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+
+    .hud .name {
+      font-size: 1.18rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .hud .desc {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+      min-height: 92px;
+    }
+
+    .hud .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .pyramid {
+      margin-top: 12px;
+      width: 100%;
+      height: 138px;
+      display: block;
+    }
+
+    .footer-note {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 5;
+      color: rgba(232,241,255,0.78);
+      font-size: 0.84rem;
+      pointer-events: none;
+    }
+
+    .footer-pill {
+      background: rgba(7,16,24,0.72);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .small { font-size: 0.82rem; color: var(--muted); }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .sidebar {
+        height: auto;
+        max-height: 44vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .hud {
+        width: min(320px, calc(100% - 24px));
+        right: 12px;
+        top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1>The Geography of Psychology</h1>
+      <div class="subtitle">
+        A standalone topographic-psychological atlas built around the three revelations. The map is read through <strong>Oedipal Islands (OI)</strong>, <strong>Freudian Highlands (FH)</strong>, and <strong>Jungian Universe (JU)</strong> as shifting interpretive lenses.
+      </div>
+
+      <section class="panel">
+        <h2>Lens Filters</h2>
+        <div class="lens-grid">
+          <button class="lens-btn active" data-lens="OI">OI</button>
+          <button class="lens-btn" data-lens="FH">FH</button>
+          <button class="lens-btn" data-lens="JU">JU</button>
+        </div>
+        <div class="small" style="margin-top:10px; line-height:1.45;">
+          Each lens reshapes terrain emphasis, heat distribution, symbolic color, and interpretive text.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Terrain Controls</h2>
+        <div class="slider-row">
+          <div class="slider-top"><span>Elevation</span><span id="elevationVal">68</span></div>
+          <input id="elevationRange" type="range" min="20" max="100" value="68" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Heat Intensity</span><span id="heatVal">62</span></div>
+          <input id="heatRange" type="range" min="0" max="100" value="62" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Pyramid Influence</span><span id="pyramidVal">78</span></div>
+          <input id="pyramidRange" type="range" min="0" max="100" value="78" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Map Layers</h2>
+        <div class="toggle-grid">
+          <button class="toggle-btn active" data-layer="contours">Contours</button>
+          <button class="toggle-btn active" data-layer="heatmap">Heatmap</button>
+          <button class="toggle-btn active" data-layer="grid">Grid</button>
+          <button class="toggle-btn active" data-layer="labels">Labels</button>
+          <button class="toggle-btn active" data-layer="routes">Routes</button>
+          <button class="toggle-btn active" data-layer="glow">Glow</button>
+        </div>
+        <button class="action-btn" id="animateBtn" style="margin-top:10px;">Pause Drift</button>
+      </section>
+
+      <section class="panel">
+        <h2>Legend</h2>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(231,111,81,0.95), rgba(231,111,81,0.35));"></div><div>OI — local conflict, primal heat, island fragmentation</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(244,211,94,0.95), rgba(244,211,94,0.35));"></div><div>FH — analytic altitude, ridges, structured ascent</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(94,200,255,0.95), rgba(94,200,255,0.35));"></div><div>JU — atmospheric field, universal horizon, archetypal expanse</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(180deg, #1e3f5b, #ef8f3b, #fff2c8);"></div><div>Heatmap — interpretive intensity across the terrain</div></div>
+      </section>
+
+      <section class="panel">
+        <h2>Revelation Logic</h2>
+        <div class="facts">
+          <div><strong>Revelation 1</strong>: Unity, Division, Energy, Totality form the ontological base plane.</div>
+          <div><strong>Revelation 2</strong>: MP, OS, CH, ME, GR, QM, SR appear as civilizational and scientific overlays.</div>
+          <div><strong>Revelation 3</strong>: OI, FH, and JU act as the dominant filters of terrain, altitude, and symbolic temperature.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Self Tests</h2>
+        <div class="tests" id="testResults">Waiting for tests…</div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <canvas id="mapCanvas"></canvas>
+
+      <section class="hud">
+        <h3>Selected Region</h3>
+        <div class="name" id="regionName">Jungian Universe</div>
+        <div class="desc" id="regionDesc">A vast enclosing field in which archetypal weather, symbolic drift, and collective interpretation stretch beyond the local ridges.</div>
+        <div class="metrics">
+          <div class="metric"><div class="label">Elevation</div><div class="value" id="metricElevation">91</div></div>
+          <div class="metric"><div class="label">Heat</div><div class="value" id="metricHeat">54</div></div>
+          <div class="metric"><div class="label">Revelation</div><div class="value" id="metricRev">R3</div></div>
+        </div>
+        <svg class="pyramid" viewBox="0 0 300 140" aria-hidden="true">
+          <defs>
+            <linearGradient id="pyrBase" x1="0" x2="1">
+              <stop offset="0%" stop-color="#1d3648" />
+              <stop offset="100%" stop-color="#0c1a25" />
+            </linearGradient>
+            <linearGradient id="pyrMid" x1="0" x2="1">
+              <stop offset="0%" stop-color="#7b5a2a" />
+              <stop offset="100%" stop-color="#48361b" />
+            </linearGradient>
+            <linearGradient id="pyrTop" x1="0" x2="1">
+              <stop offset="0%" stop-color="#275472" />
+              <stop offset="100%" stop-color="#193548" />
+            </linearGradient>
+          </defs>
+          <polygon points="25,120 275,120 225,86 75,86" fill="url(#pyrBase)" stroke="rgba(255,255,255,0.15)" />
+          <polygon points="75,86 225,86 190,52 110,52" fill="url(#pyrMid)" stroke="rgba(255,255,255,0.15)" />
+          <polygon points="110,52 190,52 150,18" fill="url(#pyrTop)" stroke="rgba(255,255,255,0.15)" />
+          <text x="150" y="108" text-anchor="middle" fill="#e8f1ff" font-size="14" font-weight="700">Revelation 1 — U D E T</text>
+          <text x="150" y="74" text-anchor="middle" fill="#fff1bd" font-size="13" font-weight="700">Revelation 2 — MP OS CH ME GR QM SR</text>
+          <text x="150" y="38" text-anchor="middle" fill="#d9f5ff" font-size="13" font-weight="700">Revelation 3 — OI FH JU</text>
+        </svg>
+      </section>
+
+      <div class="footer-note">
+        <div class="footer-pill">Drag to pan · Wheel to zoom · Click regions to inspect</div>
+        <div class="footer-pill">Topographic psychology rendered as a world-map-like symbolic atlas</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function safeQueryAll(selector) {
+      return Array.from(document.querySelectorAll(selector) || []);
+    }
+
+    function safeGetById(id) {
+      return document.getElementById(id);
+    }
+
+    const ui = {
+      lensButtons: safeQueryAll('.lens-btn'),
+      toggleButtons: safeQueryAll('.toggle-btn'),
+      elevationRange: safeGetById('elevationRange'),
+      heatRange: safeGetById('heatRange'),
+      pyramidRange: safeGetById('pyramidRange'),
+      elevationVal: safeGetById('elevationVal'),
+      heatVal: safeGetById('heatVal'),
+      pyramidVal: safeGetById('pyramidVal'),
+      animateBtn: safeGetById('animateBtn'),
+      regionName: safeGetById('regionName'),
+      regionDesc: safeGetById('regionDesc'),
+      metricElevation: safeGetById('metricElevation'),
+      metricHeat: safeGetById('metricHeat'),
+      metricRev: safeGetById('metricRev'),
+      testResults: safeGetById('testResults'),
+    };
+
+    const lensProfiles = {
+      OI: {
+        color: [231, 111, 81],
+        secondary: [255, 193, 150],
+        heatBias: 0.95,
+        elevBias: 0.72,
+        hum: 1.6,
+        region: 'Oedipal Islands',
+        desc: 'Fragmented archipelagos of psychic origin where rivalry, attachment, and primal compression create hot local zones.',
+      },
+      FH: {
+        color: [244, 211, 94],
+        secondary: [255, 241, 189],
+        heatBias: 0.74,
+        elevBias: 1.05,
+        hum: 1.15,
+        region: 'Freudian Highlands',
+        desc: 'Elevated ranges of repression, analysis, and structured ascent. Here the mind organizes conflict into ridges, passes, and terraces.',
+      },
+      JU: {
+        color: [94, 200, 255],
+        secondary: [217, 245, 255],
+        heatBias: 0.58,
+        elevBias: 0.9,
+        hum: 0.8,
+        region: 'Jungian Universe',
+        desc: 'A broad atmospheric horizon of archetypal weather, symbolic constellations, and expansive collective depth.',
+      }
+    };
+
+    const state = {
+      width: 0,
+      height: 0,
+      dpr: Math.max(1, window.devicePixelRatio || 1),
+      lens: 'OI',
+      layers: {
+        contours: true,
+        heatmap: true,
+        grid: true,
+        labels: true,
+        routes: true,
+        glow: true,
+      },
+      elevation: 68,
+      heat: 62,
+      pyramid: 78,
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      dragStartX: 0,
+      dragStartY: 0,
+      pointerX: 0,
+      pointerY: 0,
+      hoveredRegion: null,
+      selectedRegion: 'JU',
+      animationOn: true,
+      t: 0,
+      didDrag: false,
+    };
+
+    const regions = [
+      {
+        id: 'OI',
+        name: 'Oedipal Islands',
+        revelation: 'R3',
+        baseElevation: 74,
+        baseHeat: 84,
+        description: 'Local islands of origin, rivalry, attachment, and compression. Psychologically dense and volcanically symbolic.',
+        shape: (w, h) => [
+          [w * 0.20, h * 0.62], [w * 0.26, h * 0.56], [w * 0.33, h * 0.58], [w * 0.36, h * 0.67], [w * 0.29, h * 0.73], [w * 0.22, h * 0.70]
+        ]
+      },
+      {
+        id: 'FH',
+        name: 'Freudian Highlands',
+        revelation: 'R3',
+        baseElevation: 89,
+        baseHeat: 66,
+        description: 'The high analytic terrain. Steep ascents of repression, displacement, and structured interpretation form the central mountain spine.',
+        shape: (w, h) => [
+          [w * 0.38, h * 0.58], [w * 0.46, h * 0.36], [w * 0.59, h * 0.30], [w * 0.70, h * 0.40], [w * 0.76, h * 0.57], [w * 0.65, h * 0.70], [w * 0.49, h * 0.72]
+        ]
+      },
+      {
+        id: 'JU',
+        name: 'Jungian Universe',
+        revelation: 'R3',
+        baseElevation: 58,
+        baseHeat: 48,
+        description: 'The enclosing atmosphere of archetypal constellations and collective symbolic weather extending beyond local topography.',
+        shape: (w, h) => [
+          [w * 0.08, h * 0.15], [w * 0.25, h * 0.09], [w * 0.43, h * 0.13], [w * 0.62, h * 0.08], [w * 0.84, h * 0.13], [w * 0.92, h * 0.25], [w * 0.88, h * 0.45], [w * 0.93, h * 0.64], [w * 0.85, h * 0.82], [w * 0.66, h * 0.90], [w * 0.42, h * 0.87], [w * 0.20, h * 0.92], [w * 0.08, h * 0.77], [w * 0.05, h * 0.54], [w * 0.09, h * 0.33]
+        ]
+      }
+    ];
+
+    const revelationMarkers = [
+      { label: 'U', x: 0.43, y: 0.80, group: 'R1' },
+      { label: 'D', x: 0.49, y: 0.76, group: 'R1' },
+      { label: 'E', x: 0.56, y: 0.73, group: 'R1' },
+      { label: 'T', x: 0.63, y: 0.69, group: 'R1' },
+      { label: 'MP', x: 0.27, y: 0.64, group: 'R2' },
+      { label: 'OS', x: 0.33, y: 0.61, group: 'R2' },
+      { label: 'CH', x: 0.41, y: 0.52, group: 'R2' },
+      { label: 'ME', x: 0.57, y: 0.50, group: 'R2' },
+      { label: 'GR', x: 0.64, y: 0.47, group: 'R2' },
+      { label: 'QM', x: 0.70, y: 0.51, group: 'R2' },
+      { label: 'SR', x: 0.76, y: 0.57, group: 'R2' },
+    ];
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function ensureCanvasReady() {
+      if (!canvas || !ctx) {
+        throw new Error('Canvas initialization failed.');
+      }
+    }
+
+    function resize() {
+      ensureCanvasReady();
+      const rect = canvas.getBoundingClientRect();
+      state.width = Math.max(1, rect.width);
+      state.height = Math.max(1, rect.height);
+      canvas.width = state.width * state.dpr;
+      canvas.height = state.height * state.dpr;
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    }
+
+    function hashNoise(x, y) {
+      const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+      return s - Math.floor(s);
+    }
+
+    function smoothNoise(x, y) {
+      const xi = Math.floor(x);
+      const yi = Math.floor(y);
+      const xf = x - xi;
+      const yf = y - yi;
+      const a = hashNoise(xi, yi);
+      const b = hashNoise(xi + 1, yi);
+      const c = hashNoise(xi, yi + 1);
+      const d = hashNoise(xi + 1, yi + 1);
+      const u = xf * xf * (3 - 2 * xf);
+      const v = yf * yf * (3 - 2 * yf);
+      return lerp(lerp(a, b, u), lerp(c, d, u), v);
+    }
+
+    function fractalNoise(x, y, lensFactor = 1) {
+      let total = 0;
+      let frequency = 1.0 * lensFactor;
+      let amplitude = 1.0;
+      let maxValue = 0;
+      for (let i = 0; i < 5; i += 1) {
+        total += smoothNoise(x * frequency, y * frequency) * amplitude;
+        maxValue += amplitude;
+        amplitude *= 0.5;
+        frequency *= 2.05;
+      }
+      return maxValue === 0 ? 0 : total / maxValue;
+    }
+
+    function getProfile() {
+      return lensProfiles[state.lens] || lensProfiles.OI;
+    }
+
+    function transformPoint(x, y) {
+      const cx = state.width / 2;
+      const cy = state.height / 2;
+      return {
+        x: (x - cx) * state.zoom + cx + state.panX,
+        y: (y - cy) * state.zoom + cy + state.panY,
+      };
+    }
+
+    function inverseTransformPoint(x, y) {
+      const cx = state.width / 2;
+      const cy = state.height / 2;
+      return {
+        x: (x - cx - state.panX) / state.zoom + cx,
+        y: (y - cy - state.panY) / state.zoom + cy,
+      };
+    }
+
+    function polygonCentroid(points) {
+      if (!Array.isArray(points) || points.length === 0) return { x: 0, y: 0 };
+      let sx = 0;
+      let sy = 0;
+      points.forEach((point) => {
+        sx += point[0];
+        sy += point[1];
+      });
+      return { x: sx / points.length, y: sy / points.length };
+    }
+
+    function drawBackground() {
+      const profile = getProfile();
+      const color = Array.isArray(profile.color) ? profile.color : [94, 200, 255];
+      const r = color[0];
+      const g = color[1];
+      const b = color[2];
+      const bg = ctx.createLinearGradient(0, 0, 0, state.height);
+      bg.addColorStop(0, `rgba(${Math.round(r * 0.15)}, ${Math.round(g * 0.18)}, ${Math.round(b * 0.24)}, 1)`);
+      bg.addColorStop(0.45, 'rgba(7,16,24,1)');
+      bg.addColorStop(1, 'rgba(4,10,16,1)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, state.width, state.height);
+
+      const radial = ctx.createRadialGradient(state.width * 0.65, state.height * 0.24, 30, state.width * 0.65, state.height * 0.24, state.width * 0.6);
+      radial.addColorStop(0, `rgba(${r},${g},${b},0.24)`);
+      radial.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, state.width, state.height);
+    }
+
+    function elevationAt(nx, ny) {
+      const profile = getProfile();
+      const terrain = fractalNoise(nx * 2.6 + state.t * 0.012, ny * 2.6, profile.hum || 1);
+      const ridge = 1 - Math.abs(nx - 0.56) * 1.7;
+      const basin = 1 - Math.hypot(nx - 0.24, ny - 0.64) * 2.5;
+      const aura = 1 - Math.hypot(nx - 0.62, ny - 0.32) * 1.5;
+      const pyramidLift = (state.pyramid / 100) * Math.max(0, 1 - Math.abs(nx - 0.55) * 2.4 - Math.abs(ny - 0.52) * 2.1);
+      let e = terrain * 0.45 + ridge * 0.28 * (profile.elevBias || 1) + basin * 0.15 + aura * 0.12 + pyramidLift * 0.45;
+      if (state.lens === 'OI') e += (1 - Math.hypot(nx - 0.27, ny - 0.64) * 2.8) * 0.28;
+      if (state.lens === 'FH') e += (1 - Math.hypot(nx - 0.54, ny - 0.49) * 2.2) * 0.34;
+      if (state.lens === 'JU') e += (1 - Math.hypot(nx - 0.60, ny - 0.28) * 1.5) * 0.20;
+      return clamp(e, 0, 1);
+    }
+
+    function heatAt(nx, ny) {
+      const profile = getProfile();
+      const islandHeat = Math.max(0, 1 - Math.hypot(nx - 0.27, ny - 0.64) * 3.5);
+      const mountainHeat = Math.max(0, 1 - Math.hypot(nx - 0.55, ny - 0.49) * 2.3);
+      const cosmicHeat = Math.max(0, 1 - Math.hypot(nx - 0.66, ny - 0.24) * 1.5);
+      const stream = Math.max(0, 1 - Math.abs((ny - 0.82) - Math.sin(nx * 9 + state.t * 0.02) * 0.035 - (0.95 - nx) * 0.4) * 12);
+      let heat = islandHeat * 0.48 + mountainHeat * 0.30 + cosmicHeat * 0.18 + stream * 0.16;
+      heat *= profile.heatBias || 1;
+      heat += (state.heat / 100) * 0.36;
+      return clamp(heat, 0, 1);
+    }
+
+    function heatColor(value, alpha = 1) {
+      let r;
+      let g;
+      let b;
+      if (value < 0.35) {
+        const t = value / 0.35;
+        r = lerp(30, 94, t);
+        g = lerp(63, 200, t);
+        b = lerp(91, 255, t);
+      } else if (value < 0.68) {
+        const t = (value - 0.35) / 0.33;
+        r = lerp(94, 239, t);
+        g = lerp(200, 143, t);
+        b = lerp(255, 59, t);
+      } else {
+        const t = (value - 0.68) / 0.32;
+        r = lerp(239, 255, t);
+        g = lerp(143, 242, t);
+        b = lerp(59, 200, t);
+      }
+      return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${alpha})`;
+    }
+
+    function drawGrid() {
+      if (!state.layers.grid) return;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(220,235,255,0.06)';
+      ctx.lineWidth = 1;
+      const step = Math.max(24, 54 * state.zoom);
+      for (let x = (state.panX % step); x < state.width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, state.height);
+        ctx.stroke();
+      }
+      for (let y = (state.panY % step); y < state.height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(state.width, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawHeatmap() {
+      if (!state.layers.heatmap) return;
+      const step = 14;
+      for (let y = 0; y < state.height; y += step) {
+        for (let x = 0; x < state.width; x += step) {
+          const p = inverseTransformPoint(x, y);
+          const nx = p.x / state.width;
+          const ny = p.y / state.height;
+          const e = elevationAt(nx, ny) * (state.elevation / 100);
+          const h = heatAt(nx, ny);
+          const combined = clamp(h * 0.72 + e * 0.28, 0, 1);
+          ctx.fillStyle = heatColor(combined, 0.20 + combined * 0.16);
+          ctx.fillRect(x, y, step + 1, step + 1);
+        }
+      }
+    }
+
+    function drawContours() {
+      if (!state.layers.contours) return;
+      ctx.save();
+      const levels = 10;
+      for (let l = 1; l <= levels; l += 1) {
+        const threshold = l / (levels + 2);
+        ctx.beginPath();
+        for (let y = 10; y < state.height - 10; y += 18) {
+          let started = false;
+          for (let x = 10; x < state.width - 10; x += 18) {
+            const p = inverseTransformPoint(x, y);
+            const val = elevationAt(p.x / state.width, p.y / state.height) * (state.elevation / 100);
+            if (Math.abs(val - threshold) < 0.035) {
+              if (!started) {
+                ctx.moveTo(x, y);
+                started = true;
+              } else {
+                ctx.lineTo(x, y);
+              }
+            }
+          }
+        }
+        ctx.strokeStyle = `rgba(255,255,255,${0.03 + threshold * 0.16})`;
+        ctx.lineWidth = threshold > 0.68 ? 1.4 : 1;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawPyramidInfluence() {
+      const influence = state.pyramid / 100;
+      if (!state.layers.glow || influence <= 0.01) return;
+      ctx.save();
+      const cx = state.width * 0.57 + state.panX * 0.2;
+      const cy = state.height * 0.50 + state.panY * 0.2;
+      const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.min(state.width, state.height) * 0.38 * state.zoom);
+      const color = getProfile().color;
+      const r = color[0];
+      const g = color[1];
+      const b = color[2];
+      grad.addColorStop(0, `rgba(${r},${g},${b},${0.12 * influence})`);
+      grad.addColorStop(0.35, `rgba(${r},${g},${b},${0.07 * influence})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, state.width, state.height);
+      ctx.restore();
+    }
+
+    function drawPolygonPath(points) {
+      points.forEach((point, index) => {
+        const px = Array.isArray(point) ? point[0] : point.x;
+        const py = Array.isArray(point) ? point[1] : point.y;
+        if (index === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+    }
+
+    function drawRegionShapes() {
+      regions.forEach((region) => {
+        const rawShape = region.shape(state.width, state.height);
+        const transformedShape = rawShape.map((point) => transformPoint(point[0], point[1]));
+        ctx.save();
+        ctx.beginPath();
+        drawPolygonPath(transformedShape);
+        ctx.closePath();
+
+        const isFocused = state.hoveredRegion === region.id || state.selectedRegion === region.id;
+        const focusAlpha = isFocused ? 0.18 : 0.08;
+        const mapColor = (lensProfiles[region.id] && lensProfiles[region.id].color) || getProfile().color;
+        ctx.fillStyle = `rgba(${mapColor[0]},${mapColor[1]},${mapColor[2]},${focusAlpha})`;
+        ctx.strokeStyle = `rgba(${mapColor[0]},${mapColor[1]},${mapColor[2]},${isFocused ? 0.65 : 0.26})`;
+        ctx.lineWidth = isFocused ? 2.2 : 1.1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    function drawRoutes() {
+      if (!state.layers.routes) return;
+      ctx.save();
+      ctx.lineWidth = 2.2;
+      const secondary = getProfile().secondary;
+      const r = secondary[0];
+      const g = secondary[1];
+      const b = secondary[2];
+      ctx.strokeStyle = `rgba(${r},${g},${b},0.42)`;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      const pts = [
+        [0.24, 0.66], [0.32, 0.59], [0.44, 0.53], [0.55, 0.47], [0.66, 0.40], [0.76, 0.31]
+      ].map((pair) => transformPoint(pair[0] * state.width, pair[1] * state.height));
+      drawPolygonPath(pts);
+      ctx.stroke();
+
+      ctx.beginPath();
+      const river = [];
+      for (let i = 0; i <= 80; i += 1) {
+        const t = i / 80;
+        const x = lerp(0.58, 0.48, t) + Math.sin(t * 8 + state.t * 0.02) * 0.03;
+        const y = lerp(0.98, 0.72, t);
+        river.push(transformPoint(x * state.width, y * state.height));
+      }
+      drawPolygonPath(river);
+      ctx.strokeStyle = 'rgba(255, 230, 160, 0.38)';
+      ctx.setLineDash([]);
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawLabels() {
+      if (!state.layers.labels) return;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      regions.forEach((region) => {
+        const centroid = polygonCentroid(region.shape(state.width, state.height));
+        const p = transformPoint(centroid.x, centroid.y);
+        ctx.font = `700 ${region.id === 'JU' ? 22 : 18}px Inter, sans-serif`;
+        ctx.fillStyle = region.id === state.selectedRegion ? 'rgba(255,255,255,0.95)' : 'rgba(232,241,255,0.88)';
+        ctx.fillText(region.name, p.x, p.y);
+      });
+
+      revelationMarkers.forEach((marker) => {
+        const p = transformPoint(marker.x * state.width, marker.y * state.height);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = marker.group === 'R1' ? 'rgba(224,185,91,0.14)' : 'rgba(255,255,255,0.05)';
+        ctx.fill();
+        ctx.strokeStyle = marker.group === 'R1' ? 'rgba(224,185,91,0.55)' : 'rgba(255,255,255,0.22)';
+        ctx.stroke();
+        ctx.fillStyle = '#eaf3ff';
+        ctx.font = '700 12px Inter, sans-serif';
+        ctx.fillText(marker.label, p.x, p.y + 0.5);
+      });
+      ctx.restore();
+    }
+
+    function drawAtmospherics() {
+      if (!state.layers.glow) return;
+      ctx.save();
+      for (let i = 0; i < 65; i += 1) {
+        const x = (hashNoise(i, 1.2) * state.width + state.t * (0.04 + i * 0.0004)) % state.width;
+        const y = hashNoise(i, 6.6) * state.height * 0.52;
+        const size = 1 + hashNoise(i, 9.4) * 2.4;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.08 + hashNoise(i, 12.1) * 0.22})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function pointInPolygon(point, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i, i += 1) {
+        const xi = polygon[i][0];
+        const yi = polygon[i][1];
+        const xj = polygon[j][0];
+        const yj = polygon[j][1];
+        const intersect = ((yi > point.y) !== (yj > point.y)) && (point.x < ((xj - xi) * (point.y - yi)) / ((yj - yi) || 0.00001) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function findRegionAt(x, y) {
+      const p = inverseTransformPoint(x, y);
+      for (const region of regions) {
+        const poly = region.shape(state.width, state.height);
+        if (pointInPolygon(p, poly)) return region.id;
+      }
+      return null;
+    }
+
+    function updateHUD(regionId) {
+      const region = regions.find((entry) => entry.id === regionId) || regions.find((entry) => entry.id === state.lens);
+      if (!region) return;
+      const elev = Math.round(clamp(region.baseElevation * (state.elevation / 68) * (state.lens === region.id ? 1.06 : 0.96), 0, 100));
+      const heat = Math.round(clamp(region.baseHeat * (state.heat / 62) * (state.lens === region.id ? 1.08 : 0.92), 0, 100));
+      if (ui.regionName) ui.regionName.textContent = region.name;
+      if (ui.regionDesc) ui.regionDesc.textContent = region.description;
+      if (ui.metricElevation) ui.metricElevation.textContent = String(elev);
+      if (ui.metricHeat) ui.metricHeat.textContent = String(heat);
+      if (ui.metricRev) ui.metricRev.textContent = region.revelation;
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, state.width, state.height);
+      drawBackground();
+      drawPyramidInfluence();
+      drawGrid();
+      drawHeatmap();
+      drawContours();
+      drawAtmospherics();
+      drawRegionShapes();
+      drawRoutes();
+      drawLabels();
+      updateHUD(state.hoveredRegion || state.selectedRegion || state.lens);
+    }
+
+    function tick() {
+      if (state.animationOn) state.t += 1;
+      render();
+      requestAnimationFrame(tick);
+    }
+
+    function setLens(lens) {
+      if (!lensProfiles[lens]) return;
+      state.lens = lens;
+      state.selectedRegion = lens;
+      ui.lensButtons.forEach((button) => button.classList.toggle('active', button.dataset.lens === lens));
+      updateHUD(lens);
+    }
+
+    function bindUI() {
+      ui.lensButtons.forEach((button) => {
+        button.addEventListener('click', () => setLens(button.dataset.lens));
+      });
+
+      ui.toggleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const layer = button.dataset.layer;
+          if (!Object.prototype.hasOwnProperty.call(state.layers, layer)) return;
+          state.layers[layer] = !state.layers[layer];
+          button.classList.toggle('active', state.layers[layer]);
+        });
+      });
+
+      const syncRanges = () => {
+        state.elevation = Number(ui.elevationRange ? ui.elevationRange.value : state.elevation);
+        state.heat = Number(ui.heatRange ? ui.heatRange.value : state.heat);
+        state.pyramid = Number(ui.pyramidRange ? ui.pyramidRange.value : state.pyramid);
+        if (ui.elevationVal) ui.elevationVal.textContent = String(state.elevation);
+        if (ui.heatVal) ui.heatVal.textContent = String(state.heat);
+        if (ui.pyramidVal) ui.pyramidVal.textContent = String(state.pyramid);
+      };
+
+      [ui.elevationRange, ui.heatRange, ui.pyramidRange].filter(Boolean).forEach((element) => {
+        element.addEventListener('input', syncRanges);
+      });
+      syncRanges();
+
+      if (ui.animateBtn) {
+        ui.animateBtn.addEventListener('click', () => {
+          state.animationOn = !state.animationOn;
+          ui.animateBtn.textContent = state.animationOn ? 'Pause Drift' : 'Resume Drift';
+        });
+      }
+
+      canvas.addEventListener('mousemove', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        state.pointerX = x;
+        state.pointerY = y;
+        state.hoveredRegion = findRegionAt(x, y);
+
+        if (state.isDragging) {
+          const nextPanX = x - state.dragStartX;
+          const nextPanY = y - state.dragStartY;
+          if (Math.abs(nextPanX - state.panX) > 1 || Math.abs(nextPanY - state.panY) > 1) {
+            state.didDrag = true;
+          }
+          state.panX = nextPanX;
+          state.panY = nextPanY;
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        state.hoveredRegion = null;
+      });
+
+      canvas.addEventListener('mousedown', (event) => {
+        state.isDragging = true;
+        state.didDrag = false;
+        state.dragStartX = event.offsetX - state.panX;
+        state.dragStartY = event.offsetY - state.panY;
+      });
+
+      window.addEventListener('mouseup', () => {
+        state.isDragging = false;
+      });
+
+      canvas.addEventListener('click', (event) => {
+        if (state.didDrag) {
+          state.didDrag = false;
+          return;
+        }
+        const region = findRegionAt(event.offsetX, event.offsetY);
+        if (region) {
+          state.selectedRegion = region;
+          updateHUD(region);
+        }
+      });
+
+      canvas.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const delta = event.deltaY < 0 ? 1.08 : 0.93;
+        state.zoom = clamp(state.zoom * delta, 0.75, 2.5);
+      }, { passive: false });
+
+      window.addEventListener('resize', () => {
+        resize();
+        render();
+      });
+    }
+
+    function runSelfTests() {
+      const results = [];
+
+      function assert(name, condition) {
+        results.push({ name, passed: Boolean(condition) });
+      }
+
+      assert('lensButtons is an array', Array.isArray(ui.lensButtons));
+      assert('toggleButtons is an array', Array.isArray(ui.toggleButtons));
+      assert('three lens buttons are present', ui.lensButtons.length === 3);
+      assert('six toggle buttons are present', ui.toggleButtons.length === 6);
+
+      const tp = transformPoint(100, 200);
+      assert('transformPoint returns an object', tp && typeof tp === 'object' && Number.isFinite(tp.x) && Number.isFinite(tp.y));
+
+      const pathProbe = [transformPoint(10, 20), transformPoint(30, 40)];
+      assert('transformed points are not arrays', !Array.isArray(pathProbe[0]) && typeof pathProbe[0].x === 'number');
+
+      const oiShape = regions[0].shape(1000, 600);
+      assert('region shape returns coordinate pairs', Array.isArray(oiShape) && Array.isArray(oiShape[0]) && oiShape[0].length === 2);
+
+      const centroid = polygonCentroid(oiShape);
+      assert('polygonCentroid returns numeric centroid', Number.isFinite(centroid.x) && Number.isFinite(centroid.y));
+
+      const heat = heatAt(0.5, 0.5);
+      const elev = elevationAt(0.5, 0.5);
+      assert('heatAt is clamped', heat >= 0 && heat <= 1);
+      assert('elevationAt is clamped', elev >= 0 && elev <= 1);
+
+      if (ui.testResults) {
+        ui.testResults.innerHTML = results.map((result) => (
+          `<div class="${result.passed ? 'test-pass' : 'test-fail'}">${result.passed ? 'PASS' : 'FAIL'} — ${result.name}</div>`
+        )).join('');
+      }
+
+      const failed = results.filter((result) => !result.passed);
+      if (failed.length > 0) {
+        console.warn('Self-tests failed:', failed);
+      } else {
+        console.info('All self-tests passed.');
+      }
+    }
+
+    ensureCanvasReady();
+    resize();
+    bindUI();
+    setLens('OI');
+    runSelfTests();
+    tick();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Geography of Psychology — 3D Flight Edition</title>
+  <style>
+    :root {
+      --paper: #f2eddc;
+      --paper-deep: #e5dcc3;
+      --ink: #1f1d18;
+      --muted: #5d5749;
+      --line: rgba(55, 48, 35, 0.22);
+      --panel: rgba(248, 244, 232, 0.92);
+      --panel-strong: rgba(244, 239, 224, 0.97);
+      --shadow: 0 12px 36px rgba(44, 35, 20, 0.16);
+      --oi: #9c5a3c;
+      --fh: #8f7b3e;
+      --ju: #496a7c;
+      --ok: #2f6a3f;
+      --danger: #9b332f;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 22%),
+        radial-gradient(circle at 80% 12%, rgba(255,255,255,0.35), transparent 18%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      grid-template-rows: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(248,244,232,0.98), rgba(236,228,208,0.98));
+      border-right: 1px solid var(--line);
+      padding: 22px 18px 18px;
+      overflow-y: auto;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,0.4);
+      z-index: 5;
+    }
+
+    .sidebar h1 {
+      margin: 0 0 8px;
+      font-size: 1.7rem;
+      line-height: 1.08;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 13px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .lens-grid, .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    button, input[type="range"] { width: 100%; }
+
+    .lens-btn, .toggle-btn, .action-btn {
+      background: rgba(122, 103, 69, 0.04);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      cursor: pointer;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      transition: background 0.16s ease, transform 0.16s ease;
+    }
+
+    .lens-btn:hover, .toggle-btn:hover, .action-btn:hover {
+      background: rgba(122,103,69,0.08);
+      transform: translateY(-1px);
+    }
+
+    .lens-btn.active[data-lens="OI"] { background: rgba(156,90,60,0.12); border-color: rgba(156,90,60,0.45); color: var(--oi); }
+    .lens-btn.active[data-lens="FH"] { background: rgba(143,123,62,0.12); border-color: rgba(143,123,62,0.45); color: var(--fh); }
+    .lens-btn.active[data-lens="JU"] { background: rgba(73,106,124,0.12); border-color: rgba(73,106,124,0.45); color: var(--ju); }
+    .toggle-btn.active { background: rgba(122,103,69,0.10); }
+
+    .slider-row { margin-bottom: 11px; }
+    .slider-row:last-child { margin-bottom: 0; }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 0.88rem;
+    }
+
+    .slider-top span:last-child {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      appearance: none;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(122,103,69,0.10), rgba(122,103,69,0.28));
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #6d5a3b;
+      border: 1px solid rgba(50,40,25,0.25);
+      cursor: pointer;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid rgba(50,40,25,0.18);
+    }
+
+    .facts, .tests {
+      display: grid;
+      gap: 7px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .facts strong { color: var(--ink); }
+    .test-pass { color: var(--ok); }
+    .test-fail { color: var(--danger); }
+
+    .main {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.25), transparent 25%),
+        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0));
+    }
+
+    #threeRoot {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .hud {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 340px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .hud h3 {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .hud .name {
+      font-size: 1.22rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .hud .desc {
+      color: var(--muted);
+      line-height: 1.52;
+      font-size: 0.93rem;
+      min-height: 92px;
+    }
+
+    .hud .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      background: rgba(122,103,69,0.04);
+      border: 1px solid rgba(55,48,35,0.12);
+      border-radius: 10px;
+      padding: 9px;
+    }
+
+    .metric .label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .pyramid {
+      display: block;
+      width: 100%;
+      height: 138px;
+      margin-top: 12px;
+    }
+
+    .footer-note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .footer-pill {
+      background: rgba(244,239,224,0.82);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 13px;
+      backdrop-filter: blur(4px);
+    }
+
+    .small { font-size: 0.82rem; color: var(--muted); }
+
+    .crosshair {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0.65;
+      display: none;
+    }
+
+    .crosshair.active { display: block; }
+
+    .crosshair::before,
+    .crosshair::after {
+      content: "";
+      position: absolute;
+      background: rgba(255,255,255,0.75);
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    }
+
+    .crosshair::before {
+      left: 9px; top: 0;
+      width: 2px; height: 20px;
+    }
+
+    .crosshair::after {
+      top: 9px; left: 0;
+      height: 2px; width: 20px;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .sidebar {
+        max-height: 44vh;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      .hud {
+        width: min(340px, calc(100% - 24px));
+        right: 12px;
+        top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1>The Geography of Psychology</h1>
+      <div class="subtitle">
+        A cartographic and scholarly atlas of the three revelations, now rendered as a navigable 3D contour terrain. Fly through the symbolic field using <strong>Oedipal Islands (OI)</strong>, <strong>Freudian Highlands (FH)</strong>, and <strong>Jungian Universe (JU)</strong> as live terrain lenses.
+      </div>
+
+      <section class="panel">
+        <h2>Lens Filters</h2>
+        <div class="lens-grid">
+          <button class="lens-btn active" data-lens="OI">OI</button>
+          <button class="lens-btn" data-lens="FH">FH</button>
+          <button class="lens-btn" data-lens="JU">JU</button>
+        </div>
+        <div class="small" style="margin-top:10px; line-height:1.45;">
+          Each lens reshapes the heightfield, symbolic coloration, and regional emphasis.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Terrain Controls</h2>
+        <div class="slider-row">
+          <div class="slider-top"><span>Elevation</span><span id="elevationVal">68</span></div>
+          <input id="elevationRange" type="range" min="20" max="100" value="68" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Heat Intensity</span><span id="heatVal">62</span></div>
+          <input id="heatRange" type="range" min="0" max="100" value="62" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Pyramid Influence</span><span id="pyramidVal">78</span></div>
+          <input id="pyramidRange" type="range" min="0" max="100" value="78" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>3D View</h2>
+        <div class="toggle-grid">
+          <button class="toggle-btn active" data-view="orbit">Orbit</button>
+          <button class="toggle-btn" data-view="fly">Fly</button>
+          <button class="toggle-btn active" data-layer="contours">Contours</button>
+          <button class="toggle-btn active" data-layer="routes">Routes</button>
+          <button class="toggle-btn active" data-layer="labels">Labels</button>
+          <button class="toggle-btn active" data-layer="glow">Glow</button>
+        </div>
+        <button class="action-btn" id="animateBtn" style="margin-top:10px;">Pause Drift</button>
+        <div class="small" style="margin-top:10px; line-height:1.5;">
+          Fly mode: <strong>click scene first</strong>, then use <strong>W A S D</strong> to move, <strong>R / F</strong> up/down, and mouse to steer.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Legend</h2>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(156,90,60,0.95), rgba(156,90,60,0.35));"></div><div>OI — insular conflict zones and concentrated psychic pressure</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(143,123,62,0.95), rgba(143,123,62,0.35));"></div><div>FH — elevated analytic ridges and classificatory ascent</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(135deg, rgba(73,106,124,0.95), rgba(73,106,124,0.35));"></div><div>JU — archetypal horizon and universal enclosure</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(180deg, #8a6a46, #b79769, #cdb698);"></div><div>IAO deficit — downward recession into brown substructure</div></div>
+        <div class="legend-item"><div class="swatch" style="background: linear-gradient(180deg, #7ca7c3, #5e90b3, #2f668f);"></div><div>IAO surplus — upward protrusion into blue relief</div></div>
+      </section>
+
+      <section class="panel">
+        <h2>Revelation Logic</h2>
+        <div class="facts">
+          <div><strong>Revelation I</strong>: Unity, Division, Energy, and Totality form the basal plane.</div>
+          <div><strong>Revelation II</strong>: MP, OS, CH, ME, GR, QM, and SR appear as overlays across the terrain.</div>
+          <div><strong>Revelation III</strong>: OI, FH, and JU govern the reading of the field itself.</div>
+          <div><strong>IAO Surplus / Deficit</strong>: blue rises, brown recedes.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Instrument Check</h2>
+        <div class="tests" id="testResults">Waiting for tests…</div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div id="threeRoot"></div>
+      <div class="crosshair" id="crosshair"></div>
+
+      <section class="hud">
+        <h3>Selected Region</h3>
+        <div class="name" id="regionName">Jungian Universe</div>
+        <div class="desc" id="regionDesc">A vast enclosing field in which archetypal weather, symbolic drift, and collective interpretation stretch beyond the local ridges.</div>
+        <div class="metrics">
+          <div class="metric"><div class="label">Elevation</div><div class="value" id="metricElevation">91</div></div>
+          <div class="metric"><div class="label">Heat</div><div class="value" id="metricHeat">54</div></div>
+          <div class="metric"><div class="label">Revelation</div><div class="value" id="metricRev">R3</div></div>
+        </div>
+        <svg class="pyramid" viewBox="0 0 300 140" aria-hidden="true">
+          <defs>
+            <linearGradient id="pyrBase" x1="0" x2="1">
+              <stop offset="0%" stop-color="#1d3648" />
+              <stop offset="100%" stop-color="#0c1a25" />
+            </linearGradient>
+            <linearGradient id="pyrMid" x1="0" x2="1">
+              <stop offset="0%" stop-color="#7b5a2a" />
+              <stop offset="100%" stop-color="#48361b" />
+            </linearGradient>
+            <linearGradient id="pyrTop" x1="0" x2="1">
+              <stop offset="0%" stop-color="#275472" />
+              <stop offset="100%" stop-color="#193548" />
+            </linearGradient>
+          </defs>
+          <polygon points="25,120 275,120 225,86 75,86" fill="url(#pyrBase)" stroke="rgba(255,255,255,0.15)" />
+          <polygon points="75,86 225,86 190,52 110,52" fill="url(#pyrMid)" stroke="rgba(255,255,255,0.15)" />
+          <polygon points="110,52 190,52 150,18" fill="url(#pyrTop)" stroke="rgba(255,255,255,0.15)" />
+          <text x="150" y="108" text-anchor="middle" fill="#e8f1ff" font-size="14" font-weight="700">Revelation 1 — U D E T</text>
+          <text x="150" y="74" text-anchor="middle" fill="#fff1bd" font-size="13" font-weight="700">Revelation 2 — MP OS CH ME GR QM SR</text>
+          <text x="150" y="38" text-anchor="middle" fill="#d9f5ff" font-size="13" font-weight="700">Revelation 3 — OI FH JU</text>
+        </svg>
+      </section>
+
+      <div class="footer-note">
+        <div class="footer-pill">Orbit or Fly · Live symbolic terrain · Click regions to inspect</div>
+        <div class="footer-pill">3D contour cartography of psychology with surplus peaks and deficit basins</div>
+      </div>
+    </main>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.180.0/build/three.module.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.180.0/examples/jsm/controls/OrbitControls.js";
+    import { FlyControls } from "https://unpkg.com/three@0.180.0/examples/jsm/controls/FlyControls.js";
+
+    const root = document.getElementById("threeRoot");
+    const crosshair = document.getElementById("crosshair");
+
+    const ui = {
+      lensButtons: Array.from(document.querySelectorAll(".lens-btn")),
+      toggleButtons: Array.from(document.querySelectorAll(".toggle-btn")),
+      elevationRange: document.getElementById("elevationRange"),
+      heatRange: document.getElementById("heatRange"),
+      pyramidRange: document.getElementById("pyramidRange"),
+      elevationVal: document.getElementById("elevationVal"),
+      heatVal: document.getElementById("heatVal"),
+      pyramidVal: document.getElementById("pyramidVal"),
+      animateBtn: document.getElementById("animateBtn"),
+      regionName: document.getElementById("regionName"),
+      regionDesc: document.getElementById("regionDesc"),
+      metricElevation: document.getElementById("metricElevation"),
+      metricHeat: document.getElementById("metricHeat"),
+      metricRev: document.getElementById("metricRev"),
+      testResults: document.getElementById("testResults"),
+    };
+
+    const lensProfiles = {
+      OI: { color: [156, 90, 60], secondary: [196, 151, 120], heatBias: 0.96, elevBias: 0.74, hum: 1.55, surplusBias: 0.72, deficitBias: 1.18 },
+      FH: { color: [143, 123, 62], secondary: [190, 173, 118], heatBias: 0.76, elevBias: 1.08, hum: 1.10, surplusBias: 0.95, deficitBias: 0.92 },
+      JU: { color: [73, 106, 124], secondary: [150, 180, 198], heatBias: 0.60, elevBias: 0.92, hum: 0.82, surplusBias: 1.22, deficitBias: 0.72 }
+    };
+
+    const state = {
+      lens: "OI",
+      elevation: 68,
+      heat: 62,
+      pyramid: 78,
+      layers: { contours: true, routes: true, labels: true, glow: true },
+      animationOn: true,
+      viewMode: "orbit",
+      selectedRegion: "JU",
+      hoveredRegion: null,
+      t: 0,
+    };
+
+    const provinces = [
+      {
+        id: "OI",
+        name: "Oedipal Islands",
+        revelation: "R3",
+        baseElevation: 74,
+        baseHeat: 84,
+        description: "An insular archipelago of origin-conflict, attachment, and psychic compression. Its coasts are irregular, its interior volcanic, and its symbolic pressure intensely local.",
+        polygon: [
+          [-90, 42], [-72, 28], [-35, 22], [5, 34], [0, 62], [-38, 80], [-85, 70]
+        ]
+      },
+      {
+        id: "FH",
+        name: "Freudian Highlands",
+        revelation: "R3",
+        baseElevation: 90,
+        baseHeat: 67,
+        description: "A central massif of analytic elevation. The land rises through terraces, passes, and ridges where psychic material is ordered, displaced, and interpreted.",
+        polygon: [
+          [-10, 28], [15, -20], [65, -52], [120, -40], [152, 8], [118, 60], [42, 76], [0, 60]
+        ]
+      },
+      {
+        id: "JU",
+        name: "Jungian Universe",
+        revelation: "R3",
+        baseElevation: 58,
+        baseHeat: 48,
+        description: "A broad atmospheric enclosure containing the whole map. The Jungian field is less a single terrain than an immense horizon of archetypal weather and symbolic recurrence.",
+        polygon: [
+          [-185,-140], [-110,-165], [-32,-152], [62,-170], [160,-145], [194,-86], [180,-12], [198,58], [158,132], [76,168], [-18,154], [-118,170], [-185,122], [-205,42], [-192,-62]
+        ]
+      }
+    ];
+
+    const revelationMarkers = [
+      { label: "U", x: -8, z: 108, group: "R1" },
+      { label: "D", x: 18, z: 84, group: "R1" },
+      { label: "E", x: 48, z: 58, group: "R1" },
+      { label: "T", x: 80, z: 36, group: "R1" },
+      { label: "MP", x: -72, z: 44, group: "R2" },
+      { label: "OS", x: -44, z: 28, group: "R2" },
+      { label: "CH", x: -6, z: 0, group: "R2" },
+      { label: "ME", x: 50, z: -18, group: "R2" },
+      { label: "GR", x: 78, z: -40, group: "R2" },
+      { label: "QM", x: 120, z: -12, group: "R2" },
+      { label: "SR", x: 158, z: 24, group: "R2" }
+    ];
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function hashNoise(x, y) {
+      const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+      return s - Math.floor(s);
+    }
+
+    function smoothNoise(x, y) {
+      const xi = Math.floor(x), yi = Math.floor(y);
+      const xf = x - xi, yf = y - yi;
+      const a = hashNoise(xi, yi);
+      const b = hashNoise(xi + 1, yi);
+      const c = hashNoise(xi, yi + 1);
+      const d = hashNoise(xi + 1, yi + 1);
+      const u = xf * xf * (3 - 2 * xf);
+      const v = yf * yf * (3 - 2 * yf);
+      return lerp(lerp(a, b, u), lerp(c, d, u), v);
+    }
+
+    function fractalNoise(x, y, lensFactor = 1) {
+      let total = 0, frequency = 1.0 * lensFactor, amplitude = 1.0, maxValue = 0;
+      for (let i = 0; i < 5; i++) {
+        total += smoothNoise(x * frequency, y * frequency) * amplitude;
+        maxValue += amplitude;
+        amplitude *= 0.5;
+        frequency *= 2.03;
+      }
+      return maxValue === 0 ? 0 : total / maxValue;
+    }
+
+    function getProfile() {
+      return lensProfiles[state.lens] || lensProfiles.OI;
+    }
+
+    // World extent
+    const WORLD_W = 440;
+    const WORLD_H = 360;
+    const SEG_X = 220;
+    const SEG_Y = 180;
+
+    function worldToNorm(x, z) {
+      return {
+        nx: (x + WORLD_W / 2) / WORLD_W,
+        ny: (z + WORLD_H / 2) / WORLD_H
+      };
+    }
+
+    function elevationAtNorm(nx, ny) {
+      const profile = getProfile();
+      const terrain = fractalNoise(nx * 2.5 + state.t * 0.006, ny * 2.5, profile.hum || 1);
+      const ridge = 1 - Math.abs(nx - 0.56) * 1.6;
+      const island = 1 - Math.hypot(nx - 0.25, ny - 0.64) * 2.8;
+      const horizon = 1 - Math.hypot(nx - 0.63, ny - 0.25) * 1.45;
+      const pyramidLift = (state.pyramid / 100) * Math.max(0, 1 - Math.abs(nx - 0.55) * 2.3 - Math.abs(ny - 0.50) * 2.0);
+
+      let e = terrain * 0.40 + ridge * 0.31 * (profile.elevBias || 1) + island * 0.16 + horizon * 0.11 + pyramidLift * 0.44;
+      if (state.lens === "OI") e += (1 - Math.hypot(nx - 0.26, ny - 0.65) * 2.9) * 0.30;
+      if (state.lens === "FH") e += (1 - Math.hypot(nx - 0.55, ny - 0.48) * 2.2) * 0.35;
+      if (state.lens === "JU") e += (1 - Math.hypot(nx - 0.63, ny - 0.25) * 1.6) * 0.18;
+      return clamp(e, 0, 1);
+    }
+
+    function heatAtNorm(nx, ny) {
+      const profile = getProfile();
+      const islandHeat = Math.max(0, 1 - Math.hypot(nx - 0.26, ny - 0.64) * 3.2);
+      const mountainHeat = Math.max(0, 1 - Math.hypot(nx - 0.55, ny - 0.48) * 2.3);
+      const horizonHeat = Math.max(0, 1 - Math.hypot(nx - 0.66, ny - 0.23) * 1.55);
+      const current = Math.max(0, 1 - Math.abs((ny - 0.83) - Math.sin(nx * 8 + state.t * 0.01) * 0.03 - (0.96 - nx) * 0.35) * 11);
+      let heat = islandHeat * 0.46 + mountainHeat * 0.31 + horizonHeat * 0.19 + current * 0.14;
+      heat *= profile.heatBias || 1;
+      heat += (state.heat / 100) * 0.34;
+      return clamp(heat, 0, 1);
+    }
+
+    function surplusDeficitAtNorm(nx, ny) {
+      const profile = getProfile();
+      const surplusCore = Math.max(0, 1 - Math.hypot(nx - 0.66, ny - 0.24) * 1.9) * (profile.surplusBias || 1);
+      const mountainReserve = Math.max(0, 1 - Math.hypot(nx - 0.55, ny - 0.47) * 2.0) * 0.48;
+      const deficitBasin = Math.max(0, 1 - Math.hypot(nx - 0.26, ny - 0.67) * 2.6) * (profile.deficitBias || 1);
+      const fracture = Math.max(0, 1 - Math.abs((ny - 0.72) - Math.sin(nx * 7.4 + state.t * 0.008) * 0.04) * 10) * 0.15;
+      let sd = surplusCore + mountainReserve - deficitBasin - fracture;
+      if (state.lens === "JU") sd += 0.12;
+      if (state.lens === "OI") sd -= 0.12;
+      return clamp(sd, -1, 1);
+    }
+
+    function terrainHeight(x, z) {
+      const { nx, ny } = worldToNorm(x, z);
+      const elev = elevationAtNorm(nx, ny) * (state.elevation / 100);
+      const sd = surplusDeficitAtNorm(nx, ny);
+      const shape = elev * 46 + sd * 38;
+      return shape;
+    }
+
+    function blendBrownBlue(sd, heat, elev) {
+      const t = (sd + 1) / 2;
+      const brown = new THREE.Color(0x8c6a46);
+      const mid   = new THREE.Color(0x9f8f7c);
+      const blue  = new THREE.Color(0x5f8fb5);
+
+      const base = new THREE.Color();
+      if (t < 0.5) {
+        base.copy(brown).lerp(mid, t / 0.5);
+      } else {
+        base.copy(mid).lerp(blue, (t - 0.5) / 0.5);
+      }
+
+      const heatTint = new THREE.Color(0xb58c56);
+      const coolTint = new THREE.Color(0x648aa8);
+      const fieldTint = heat > 0.55 ? heatTint : coolTint;
+      base.lerp(fieldTint, 0.08 + elev * 0.08);
+
+      return base;
+    }
+
+    function pointInPolygonXZ(point, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i][0], zi = polygon[i][1];
+        const xj = polygon[j][0], zj = polygon[j][1];
+        const intersect =
+          ((zi > point.z) !== (zj > point.z)) &&
+          (point.x < ((xj - xi) * (point.z - zi)) / ((zj - zi) || 0.000001) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function regionFromXZ(x, z) {
+      for (const province of provinces) {
+        if (pointInPolygonXZ({ x, z }, province.polygon)) return province.id;
+      }
+      return "JU";
+    }
+
+    function updateHUD(regionId) {
+      const province = provinces.find((p) => p.id === regionId) || provinces.find((p) => p.id === state.lens);
+      if (!province) return;
+
+      let cx = 0, cz = 0;
+      for (const p of province.polygon) {
+        cx += p[0];
+        cz += p[1];
+      }
+      cx /= province.polygon.length;
+      cz /= province.polygon.length;
+
+      const { nx, ny } = worldToNorm(cx, cz);
+      const sd = surplusDeficitAtNorm(nx, ny);
+      const elev = Math.round(clamp(province.baseElevation * (state.elevation / 68) * (state.lens === province.id ? 1.06 : 0.96), 0, 100));
+      const heat = Math.round(clamp((province.baseHeat + sd * 18) * (state.heat / 62) * (state.lens === province.id ? 1.08 : 0.92), 0, 100));
+
+      ui.regionName.textContent = `${province.name}${sd >= 0 ? " · Surplus" : " · Deficit"}`;
+      ui.regionDesc.textContent = `${province.description} ${sd >= 0 ? "The present reading trends toward IAO surplus, generating upward blue protrusion." : "The present reading trends toward IAO deficit, generating downward brown recession."}`;
+      ui.metricElevation.textContent = String(elev);
+      ui.metricHeat.textContent = String(heat);
+      ui.metricRev.textContent = province.revelation;
+    }
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xd7cfbd);
+    scene.fog = new THREE.Fog(0xd9d2c2, 180, 560);
+
+    const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 2000);
+    camera.position.set(-30, 110, 180);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(root.clientWidth, root.clientHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    root.appendChild(renderer.domElement);
+
+    const orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.enableDamping = true;
+    orbitControls.target.set(20, 18, 10);
+    orbitControls.minDistance = 40;
+    orbitControls.maxDistance = 420;
+    orbitControls.maxPolarAngle = Math.PI * 0.48;
+
+    const flyControls = new FlyControls(camera, renderer.domElement);
+    flyControls.movementSpeed = 60;
+    flyControls.rollSpeed = Math.PI / 12;
+    flyControls.dragToLook = true;
+    flyControls.autoForward = false;
+    flyControls.enabled = false;
+
+    const hemi = new THREE.HemisphereLight(0xf2efe6, 0x7a6a57, 1.2);
+    scene.add(hemi);
+
+    const sun = new THREE.DirectionalLight(0xfff4dc, 1.2);
+    sun.position.set(120, 180, 80);
+    scene.add(sun);
+
+    const fill = new THREE.DirectionalLight(0xb9d0e0, 0.45);
+    fill.position.set(-100, 90, -120);
+    scene.add(fill);
+
+    const terrainGroup = new THREE.Group();
+    scene.add(terrainGroup);
+
+    const labelGroup = new THREE.Group();
+    scene.add(labelGroup);
+
+    const routeGroup = new THREE.Group();
+    scene.add(routeGroup);
+
+    const contourGroup = new THREE.Group();
+    scene.add(contourGroup);
+
+    const glowGroup = new THREE.Group();
+    scene.add(glowGroup);
+
+    let terrainMesh = null;
+    let terrainWire = null;
+    let regionMeshes = [];
+
+    function makeTextSprite(text, color = "#2b2417", bg = "rgba(255,255,255,0.0)", size = 220, fontSize = 34) {
+      const c = document.createElement("canvas");
+      c.width = size;
+      c.height = 96;
+      const ctx = c.getContext("2d");
+
+      ctx.clearRect(0, 0, c.width, c.height);
+      if (bg !== "transparent") {
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, c.width, c.height);
+      }
+
+      ctx.font = `700 ${fontSize}px Georgia`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.strokeText(text, c.width / 2, c.height / 2);
+      ctx.fillStyle = color;
+      ctx.fillText(text, c.width / 2, c.height / 2);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(38, 16, 1);
+      return sprite;
+    }
+
+    function disposeGroup(group) {
+      while (group.children.length) {
+        const obj = group.children.pop();
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
+          else obj.material.dispose();
+        }
+      }
+    }
+
+    function buildTerrain() {
+      if (terrainMesh) {
+        terrainGroup.remove(terrainMesh);
+        terrainMesh.geometry.dispose();
+        terrainMesh.material.dispose();
+      }
+      if (terrainWire) {
+        terrainGroup.remove(terrainWire);
+        terrainWire.geometry.dispose();
+        terrainWire.material.dispose();
+      }
+      disposeGroup(labelGroup);
+      disposeGroup(routeGroup);
+      disposeGroup(contourGroup);
+      disposeGroup(glowGroup);
+      regionMeshes = [];
+
+      const geometry = new THREE.PlaneGeometry(WORLD_W, WORLD_H, SEG_X, SEG_Y);
+      geometry.rotateX(-Math.PI / 2);
+
+      const pos = geometry.attributes.position;
+      const colors = [];
+
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        const { nx, ny } = worldToNorm(x, z);
+        const elev = elevationAtNorm(nx, ny) * (state.elevation / 100);
+        const heat = heatAtNorm(nx, ny);
+        const sd = surplusDeficitAtNorm(nx, ny);
+
+        const y = terrainHeight(x, z);
+        pos.setY(i, y);
+
+        const color = blendBrownBlue(sd, heat, elev);
+        colors.push(color.r, color.g, color.b);
+      }
+
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      geometry.computeVertexNormals();
+
+      const mat = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.95,
+        metalness: 0.02,
+        flatShading: false
+      });
+
+      terrainMesh = new THREE.Mesh(geometry, mat);
+      terrainMesh.receiveShadow = true;
+      terrainMesh.castShadow = false;
+      terrainMesh.userData.isTerrain = true;
+      terrainGroup.add(terrainMesh);
+
+      const wireGeo = new THREE.WireframeGeometry(geometry.clone());
+      const wireMat = new THREE.LineBasicMaterial({
+        color: 0x53412f,
+        transparent: true,
+        opacity: 0.12
+      });
+      terrainWire = new THREE.LineSegments(wireGeo, wireMat);
+      terrainGroup.add(terrainWire);
+
+      buildContours();
+      buildRoutes();
+      buildLabels();
+      buildProvinceOverlays();
+      buildGlowMarkers();
+    }
+
+    function buildContours() {
+      if (!state.layers.contours) return;
+
+      const levels = 16;
+      for (let l = 0; l < levels; l++) {
+        const threshold = -24 + (l / (levels - 1)) * 72;
+        const pts = [];
+
+        for (let zi = 0; zi <= 100; zi++) {
+          const z = -WORLD_H / 2 + (zi / 100) * WORLD_H;
+          for (let xi = 0; xi <= 120; xi++) {
+            const x = -WORLD_W / 2 + (xi / 120) * WORLD_W;
+            const y = terrainHeight(x, z);
+            if (Math.abs(y - threshold) < 1.0) {
+              pts.push(new THREE.Vector3(x, y + 0.7, z));
+            }
+          }
+        }
+
+        if (pts.length < 2) continue;
+
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        const color = threshold >= 14 ? 0x6f98bb : 0x8b6946;
+        const mat = new THREE.PointsMaterial({
+          color,
+          size: 0.85,
+          transparent: true,
+          opacity: 0.42
+        });
+
+        contourGroup.add(new THREE.Points(geo, mat));
+      }
+    }
+
+    function buildRoutes() {
+      if (!state.layers.routes) return;
+
+      const routePts = [
+        [-84, 58], [-50, 40], [-10, 22], [38, 0], [82, -24], [138, -52]
+      ].map(([x, z]) => new THREE.Vector3(x, terrainHeight(x, z) + 2.2, z));
+
+      const routeCurve = new THREE.CatmullRomCurve3(routePts);
+      const routeGeo = new THREE.TubeGeometry(routeCurve, 90, 0.85, 8, false);
+      const routeMat = new THREE.MeshBasicMaterial({
+        color: 0x7d6244,
+        transparent: true,
+        opacity: 0.5
+      });
+      routeGroup.add(new THREE.Mesh(routeGeo, routeMat));
+
+      const currentPts = [];
+      for (let i = 0; i <= 80; i++) {
+        const t = i / 80;
+        const x = lerp(56, 0, t) + Math.sin(t * 8 + state.t * 0.01) * 10;
+        const z = lerp(154, 70, t);
+        currentPts.push(new THREE.Vector3(x, terrainHeight(x, z) + 1.8, z));
+      }
+
+      const currentCurve = new THREE.CatmullRomCurve3(currentPts);
+      const currentGeo = new THREE.TubeGeometry(currentCurve, 110, 1.05, 8, false);
+      const currentMat = new THREE.MeshBasicMaterial({
+        color: 0x6b91b1,
+        transparent: true,
+        opacity: 0.42
+      });
+      routeGroup.add(new THREE.Mesh(currentGeo, currentMat));
+    }
+
+    function buildLabels() {
+      if (!state.layers.labels) return;
+
+      for (const province of provinces) {
+        let cx = 0, cz = 0;
+        for (const p of province.polygon) {
+          cx += p[0];
+          cz += p[1];
+        }
+        cx /= province.polygon.length;
+        cz /= province.polygon.length;
+
+        const sprite = makeTextSprite(
+          province.name,
+          province.id === "JU" ? "#263543" : "#2b2417",
+          "transparent",
+          province.id === "JU" ? 360 : 280,
+          province.id === "JU" ? 30 : 28
+        );
+        sprite.position.set(cx, terrainHeight(cx, cz) + 13, cz);
+        labelGroup.add(sprite);
+      }
+
+      for (const marker of revelationMarkers) {
+        const g = new THREE.Group();
+
+        const y = terrainHeight(marker.x, marker.z) + 8;
+        const ball = new THREE.Mesh(
+          new THREE.SphereGeometry(marker.group === "R1" ? 2.8 : 3.4, 18, 18),
+          new THREE.MeshStandardMaterial({
+            color: marker.group === "R1" ? 0xb18f61 : 0x7896af,
+            emissive: marker.group === "R1" ? 0x33210a : 0x10202e,
+            emissiveIntensity: 0.18,
+            roughness: 0.7
+          })
+        );
+        ball.position.set(marker.x, y, marker.z);
+        g.add(ball);
+
+        const text = makeTextSprite(marker.label, "#241b12", "transparent", 160, 28);
+        text.position.set(marker.x, y + 6.5, marker.z);
+        text.scale.set(18, 8, 1);
+        g.add(text);
+
+        labelGroup.add(g);
+      }
+    }
+
+    function buildProvinceOverlays() {
+      for (const province of provinces) {
+        const shape = new THREE.Shape();
+        province.polygon.forEach((p, i) => {
+          if (i === 0) shape.moveTo(p[0], p[1]);
+          else shape.lineTo(p[0], p[1]);
+        });
+
+        const geo = new THREE.ShapeGeometry(shape, 40);
+        geo.rotateX(-Math.PI / 2);
+
+        const vertices = geo.attributes.position;
+        for (let i = 0; i < vertices.count; i++) {
+          const x = vertices.getX(i);
+          const z = vertices.getZ(i);
+          vertices.setY(i, terrainHeight(x, z) + 0.9);
+        }
+        geo.computeVertexNormals();
+
+        const provinceColor = province.id === "OI" ? 0xa56a49 : province.id === "FH" ? 0xa08a55 : 0x69869d;
+        const mat = new THREE.MeshBasicMaterial({
+          color: provinceColor,
+          transparent: true,
+          opacity: province.id === state.selectedRegion ? 0.18 : 0.10,
+          side: THREE.DoubleSide,
+          depthWrite: false
+        });
+
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.userData.regionId = province.id;
+        mesh.userData.isRegion = true;
+        regionMeshes.push(mesh);
+        scene.add(mesh);
+      }
+    }
+
+    function buildGlowMarkers() {
+      if (!state.layers.glow) return;
+
+      const geom = new THREE.SphereGeometry(1.7, 14, 14);
+
+      for (let z = -WORLD_H / 2 + 10; z < WORLD_H / 2; z += 22) {
+        for (let x = -WORLD_W / 2 + 10; x < WORLD_W / 2; x += 22) {
+          const { nx, ny } = worldToNorm(x, z);
+          const sd = surplusDeficitAtNorm(nx, ny);
+          if (Math.abs(sd) < 0.18) continue;
+
+          const y = terrainHeight(x, z) + (sd > 0 ? 5 + sd * 10 : 2.5);
+          const mat = new THREE.MeshBasicMaterial({
+            color: sd > 0 ? 0x6b97bb : 0x8a6644,
+            transparent: true,
+            opacity: 0.16 + Math.abs(sd) * 0.18
+          });
+
+          const m = new THREE.Mesh(geom, mat);
+          m.position.set(x, y, z);
+          const s = 0.6 + Math.abs(sd) * 1.4;
+          m.scale.setScalar(s);
+          glowGroup.add(m);
+        }
+      }
+    }
+
+    function clearProvinceOverlays() {
+      for (const mesh of regionMeshes) {
+        scene.remove(mesh);
+        mesh.geometry.dispose();
+        mesh.material.dispose();
+      }
+      regionMeshes = [];
+    }
+
+    function rebuildScene() {
+      clearProvinceOverlays();
+      buildTerrain();
+      updateHUD(state.selectedRegion || state.lens);
+    }
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function castRegionFromMouse(clientX, clientY) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      if (regionMeshes.length) {
+        const regionHits = raycaster.intersectObjects(regionMeshes, false);
+        if (regionHits.length) return regionHits[0].object.userData.regionId;
+      }
+
+      const terrainHits = terrainMesh ? raycaster.intersectObject(terrainMesh, false) : [];
+      if (terrainHits.length) {
+        const p = terrainHits[0].point;
+        return regionFromXZ(p.x, p.z);
+      }
+
+      return null;
+    }
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      const isFly = mode === "fly";
+
+      orbitControls.enabled = !isFly;
+      flyControls.enabled = isFly;
+      crosshair.classList.toggle("active", isFly);
+
+      for (const button of ui.toggleButtons) {
+        if (button.dataset.view) {
+          button.classList.toggle("active", button.dataset.view === mode);
+        }
+      }
+    }
+
+    function setLens(lens) {
+      if (!lensProfiles[lens]) return;
+      state.lens = lens;
+      state.selectedRegion = lens;
+
+      for (const button of ui.lensButtons) {
+        button.classList.toggle("active", button.dataset.lens === lens);
+      }
+      rebuildScene();
+    }
+
+    function syncRanges() {
+      state.elevation = Number(ui.elevationRange.value);
+      state.heat = Number(ui.heatRange.value);
+      state.pyramid = Number(ui.pyramidRange.value);
+      ui.elevationVal.textContent = String(state.elevation);
+      ui.heatVal.textContent = String(state.heat);
+      ui.pyramidVal.textContent = String(state.pyramid);
+      rebuildScene();
+    }
+
+    function bindUI() {
+      for (const button of ui.lensButtons) {
+        button.addEventListener("click", () => setLens(button.dataset.lens));
+      }
+
+      for (const button of ui.toggleButtons) {
+        if (button.dataset.view) {
+          button.addEventListener("click", () => setViewMode(button.dataset.view));
+          continue;
+        }
+
+        if (button.dataset.layer) {
+          button.addEventListener("click", () => {
+            const layer = button.dataset.layer;
+            if (!(layer in state.layers)) return;
+            state.layers[layer] = !state.layers[layer];
+            button.classList.toggle("active", state.layers[layer]);
+            rebuildScene();
+          });
+        }
+      }
+
+      [ui.elevationRange, ui.heatRange, ui.pyramidRange].forEach((el) => {
+        el.addEventListener("input", syncRanges);
+      });
+
+      ui.animateBtn.addEventListener("click", () => {
+        state.animationOn = !state.animationOn;
+        ui.animateBtn.textContent = state.animationOn ? "Pause Drift" : "Resume Drift";
+      });
+
+      renderer.domElement.addEventListener("mousemove", (event) => {
+        const region = castRegionFromMouse(event.clientX, event.clientY);
+        state.hoveredRegion = region;
+        updateHUD(region || state.selectedRegion || state.lens);
+      });
+
+      renderer.domElement.addEventListener("click", (event) => {
+        const region = castRegionFromMouse(event.clientX, event.clientY);
+        if (region) {
+          state.selectedRegion = region;
+          rebuildScene();
+          updateHUD(region);
+        }
+      });
+
+      renderer.domElement.addEventListener("dblclick", (event) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hits = terrainMesh ? raycaster.intersectObject(terrainMesh, false) : [];
+        if (hits.length) {
+          const p = hits[0].point;
+          orbitControls.target.lerp(new THREE.Vector3(p.x, p.y, p.z), 1);
+        }
+      });
+
+      window.addEventListener("resize", onResize);
+    }
+
+    function onResize() {
+      const w = root.clientWidth;
+      const h = root.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+
+      if (state.animationOn) {
+        state.t += 1;
+      }
+
+      if (state.viewMode === "orbit") {
+        orbitControls.update();
+      } else {
+        flyControls.update(dt);
+
+        // Keep fly camera above terrain
+        const terrainY = terrainHeight(camera.position.x, camera.position.z);
+        const minY = terrainY + 10;
+        if (camera.position.y < minY) camera.position.y = minY;
+      }
+
+      // gentle lens-colored atmospheric drift
+      const profile = getProfile();
+      const bg = new THREE.Color(
+        lerp(0.84, profile.color[0] / 255, 0.10),
+        lerp(0.80, profile.color[1] / 255, 0.10),
+        lerp(0.74, profile.color[2] / 255, 0.10)
+      );
+      scene.fog.color.copy(bg);
+      scene.background.copy(bg);
+
+      renderer.render(scene, camera);
+    }
+
+    function runSelfTests() {
+      const results = [];
+      const assert = (name, condition) => results.push({ name, passed: Boolean(condition) });
+
+      assert("Three.js loaded", typeof THREE !== "undefined");
+      assert("OrbitControls loaded", typeof OrbitControls === "function");
+      assert("FlyControls loaded", typeof FlyControls === "function");
+      assert("three lens buttons are present", ui.lensButtons.length === 3);
+      assert("terrain layers object exists", typeof state.layers === "object");
+      assert("terrainHeight returns numeric value", Number.isFinite(terrainHeight(0, 0)));
+      assert("surplusDeficitAtNorm stays within range", surplusDeficitAtNorm(0.5, 0.5) >= -1 && surplusDeficitAtNorm(0.5, 0.5) <= 1);
+      assert("heatAtNorm stays within range", heatAtNorm(0.5, 0.5) >= 0 && heatAtNorm(0.5, 0.5) <= 1);
+      assert("elevationAtNorm stays within range", elevationAtNorm(0.5, 0.5) >= 0 && elevationAtNorm(0.5, 0.5) <= 1);
+      assert("province count is three", provinces.length === 3);
+
+      ui.testResults.innerHTML = results.map((r) =>
+        `<div class="${r.passed ? "test-pass" : "test-fail"}">${r.passed ? "PASS" : "FAIL"} — ${r.name}</div>`
+      ).join("");
+    }
+
+    syncRanges();
+    bindUI();
+    setViewMode("orbit");
+    buildTerrain();
+    updateHUD("OI");
+    onResize();
+    runSelfTests();
+    animate();
+  </script>
+</body>
+</html>
